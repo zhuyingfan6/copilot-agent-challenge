@@ -1,0 +1,903 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#071426" />
+  <title>🤖 Copilot Agent Challenge — CSCM AI Engagement Event</title>
+  <style>
+    :root {
+      --navy-950: #06101f;
+      --navy-900: #08182d;
+      --navy-800: #102848;
+      --ink: #f7fbff;
+      --muted: #b9cce2;
+      --blue: #2f7cff;
+      --blue-2: #63b3ff;
+      --purple: #9b6cff;
+      --orange: #ff9b45;
+      --green: #29c879;
+      --green-2: #67e6a5;
+      --coral: #ff625f;
+      --coral-2: #ff918e;
+      --gold: #ffc83d;
+      --card: rgba(16, 40, 72, .82);
+      --line: rgba(255, 255, 255, .13);
+      --shadow: 0 22px 60px rgba(0,0,0,.34);
+      --radius: 28px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+    body {
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 12%, rgba(47,124,255,.25), transparent 30%),
+        radial-gradient(circle at 88% 84%, rgba(155,108,255,.20), transparent 35%),
+        linear-gradient(135deg, var(--navy-950), var(--navy-900) 58%, #0b1f3a);
+      font-family: "Segoe UI", Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .17;
+      background-image:
+        linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: radial-gradient(circle at center, black, transparent 78%);
+    }
+
+    button { font: inherit; }
+    button:focus-visible { outline: 5px solid #fff; outline-offset: 5px; }
+    button:active { transform: scale(.985); }
+
+    .app {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 520px;
+      padding: clamp(18px, 3vw, 38px);
+      display: grid;
+      place-items: center;
+      isolation: isolate;
+    }
+
+    .orb {
+      position: absolute;
+      width: min(35vw, 450px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      filter: blur(18px);
+      opacity: .12;
+      pointer-events: none;
+      animation: drift 9s ease-in-out infinite alternate;
+    }
+    .orb.one { background: var(--blue); left: -13%; top: -24%; }
+    .orb.two { background: var(--purple); right: -14%; bottom: -28%; animation-delay: -4s; }
+
+    @keyframes drift { to { transform: translate3d(4vw, 3vh, 0) scale(1.08); } }
+    @keyframes rise { from { opacity: 0; transform: translateY(18px) scale(.98); } to { opacity: 1; transform: none; } }
+    @keyframes pulseGlow { 50% { box-shadow: 0 0 0 10px rgba(47,124,255,.08), 0 24px 65px rgba(47,124,255,.45); } }
+    @keyframes pop { 0% { transform: scale(.35) rotate(-8deg); opacity: 0; } 72% { transform: scale(1.08) rotate(2deg); } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes shimmer { to { transform: translateX(160%); } }
+    @keyframes challengeGlow { 50% { box-shadow: 0 0 30px rgba(155,108,255,.55); } }
+    @keyframes confettiFall { to { transform: translate3d(var(--x), 110vh, 0) rotate(720deg); opacity: .9; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; }
+    }
+
+    .screen {
+      display: none;
+      width: min(1220px, 100%);
+      height: 100%;
+      max-height: 860px;
+      animation: rise .32s ease-out both;
+    }
+    .screen.active { display: grid; }
+
+    .glass {
+      background: linear-gradient(150deg, rgba(18,45,79,.92), rgba(10,28,52,.82));
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .event-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      width: fit-content;
+      padding: 8px 14px;
+      border: 1px solid rgba(99,179,255,.38);
+      border-radius: 999px;
+      color: #cfe9ff;
+      background: rgba(47,124,255,.12);
+      font-size: clamp(12px, 1.45vw, 16px);
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      font-size: clamp(18px, 2.1vw, 26px);
+      font-weight: 900;
+      letter-spacing: .02em;
+    }
+    .brand-icon {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 15px;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      box-shadow: 0 10px 28px rgba(47,124,255,.32);
+      font-size: 26px;
+    }
+
+    /* 1, 4, 13, 14, 15 & 17 — objective, attract screen, visual system, exclusions, touch UX and experience goal */
+    #attractScreen {
+      grid-template-rows: auto 1fr auto;
+      gap: clamp(14px, 2.2vh, 22px);
+      text-align: center;
+    }
+    .attract-top { display: flex; justify-content: center; }
+    .hero {
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      gap: clamp(10px, 1.7vh, 18px);
+      min-height: 0;
+    }
+    .robot-mark {
+      display: grid;
+      place-items: center;
+      width: clamp(70px, 8.5vh, 94px);
+      aspect-ratio: 1;
+      border-radius: 30%;
+      background: linear-gradient(145deg, rgba(47,124,255,.96), rgba(155,108,255,.95));
+      box-shadow: 0 0 0 8px rgba(255,255,255,.05), 0 22px 52px rgba(47,124,255,.3);
+      font-size: clamp(38px, 5.4vh, 58px);
+      transform: rotate(-3deg);
+    }
+    .hero h1 {
+      margin: 0;
+      max-width: 1100px;
+      font-size: clamp(38px, 6.4vw, 84px);
+      line-height: .93;
+      letter-spacing: -.055em;
+      text-wrap: balance;
+    }
+    .hero h1 .gradient {
+      background: linear-gradient(90deg, #fff 5%, #8ed0ff 48%, #c2a9ff 95%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .hero-subtitle {
+      margin: 0;
+      color: #dceaf7;
+      font-size: clamp(18px, 2.3vw, 29px);
+      line-height: 1.25;
+      font-weight: 650;
+    }
+    .quick-rules {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: clamp(8px, 1.2vw, 14px);
+    }
+    .quick-pill {
+      padding: 9px 15px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: #eaf5ff;
+      background: rgba(255,255,255,.055);
+      font-size: clamp(13px, 1.45vw, 17px);
+      font-weight: 800;
+    }
+    .topics { display: flex; justify-content: center; gap: clamp(9px, 1.3vw, 16px); flex-wrap: wrap; }
+    .topic-chip {
+      min-width: clamp(145px, 17vw, 205px);
+      padding: 11px 17px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: rgba(255,255,255,.055);
+      font-weight: 900;
+      font-size: clamp(14px, 1.55vw, 18px);
+    }
+    .topic-purpose { box-shadow: inset 0 -3px 0 var(--blue); }
+    .topic-instructions { box-shadow: inset 0 -3px 0 var(--purple); }
+    .topic-knowledge { box-shadow: inset 0 -3px 0 var(--orange); }
+
+    .start-zone { display: grid; justify-items: center; gap: 8px; }
+    .start-btn, .next-btn, .next-player-btn {
+      position: relative;
+      overflow: hidden;
+      width: min(760px, 96%);
+      min-height: clamp(82px, 12vh, 118px);
+      border: 0;
+      border-radius: 28px;
+      color: #fff;
+      background: linear-gradient(105deg, #146fe9, #6e52e7);
+      box-shadow: 0 24px 65px rgba(47,124,255,.38);
+      font-size: clamp(24px, 3.1vw, 38px);
+      font-weight: 950;
+      letter-spacing: .02em;
+      cursor: pointer;
+      animation: pulseGlow 2.4s ease-in-out infinite;
+    }
+    .start-btn::after, .next-btn::after, .next-player-btn::after {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 34%;
+      height: 200%;
+      transform: skewX(-18deg);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+      animation: shimmer 3.3s ease-in-out infinite;
+    }
+    .start-hint { color: var(--muted); font-size: clamp(12px, 1.25vw, 15px); font-weight: 700; }
+
+    /* 2, 3, 5 & 6 — randomized bank, all 15 questions, question screen and challenge display */
+    #questionScreen {
+      grid-template-rows: auto auto minmax(0, 1fr) minmax(190px, 42%);
+      gap: clamp(12px, 1.8vh, 20px);
+    }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .question-counter {
+      padding: 10px 16px;
+      border-radius: 999px;
+      color: #e9f5ff;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.055);
+      font-size: clamp(15px, 1.65vw, 20px);
+      font-weight: 900;
+      white-space: nowrap;
+    }
+    .progress-row { display: flex; justify-content: center; gap: 12px; }
+    .progress-dot {
+      width: clamp(16px, 2vw, 23px);
+      height: clamp(16px, 2vw, 23px);
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.24);
+      background: transparent;
+      transition: .25s ease;
+    }
+    .progress-dot.done { border-color: var(--green); background: var(--green); box-shadow: 0 0 16px rgba(41,200,121,.45); }
+    .progress-dot.current { border-color: var(--blue-2); background: var(--blue); box-shadow: 0 0 0 6px rgba(47,124,255,.14); }
+    .question-card {
+      min-height: 0;
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      gap: clamp(10px, 1.7vh, 16px);
+      padding: clamp(18px, 3vw, 34px);
+      border-radius: var(--radius);
+      text-align: center;
+    }
+    .challenge-badge {
+      display: none;
+      padding: 7px 13px;
+      border: 1px solid rgba(197,168,255,.6);
+      border-radius: 999px;
+      color: #f1eaff;
+      background: rgba(155,108,255,.16);
+      font-size: clamp(12px, 1.25vw, 15px);
+      font-weight: 900;
+      letter-spacing: .08em;
+      animation: challengeGlow 1.9s ease-in-out infinite;
+    }
+    .question-card.is-challenge { border-color: rgba(175,130,255,.47); box-shadow: var(--shadow), inset 0 0 50px rgba(155,108,255,.07); }
+    .question-card.is-challenge .challenge-badge { display: inline-flex; }
+    .category-badge {
+      padding: 8px 15px;
+      border-radius: 999px;
+      color: #fff;
+      font-size: clamp(13px, 1.45vw, 17px);
+      font-weight: 950;
+      letter-spacing: .06em;
+    }
+    .category-purpose { background: rgba(47,124,255,.24); border: 1px solid rgba(99,179,255,.55); }
+    .category-instructions { background: rgba(155,108,255,.22); border: 1px solid rgba(194,169,255,.55); }
+    .category-knowledge { background: rgba(255,155,69,.20); border: 1px solid rgba(255,181,116,.58); }
+    .question-text {
+      max-width: 1040px;
+      margin: 0;
+      font-size: clamp(25px, 3.35vw, 46px);
+      line-height: 1.14;
+      letter-spacing: -.025em;
+      font-weight: 850;
+      text-wrap: balance;
+    }
+    .answer-zone { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(16px, 2.4vw, 28px); min-height: 0; }
+    .answer-btn {
+      min-width: 0;
+      min-height: 100%;
+      border: 2px solid rgba(255,255,255,.19);
+      border-radius: 30px;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 7px;
+      cursor: pointer;
+      box-shadow: 0 22px 44px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.14);
+      transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
+    }
+    .answer-btn:hover { filter: brightness(1.08); }
+    .answer-btn .answer-icon { font-size: clamp(52px, 7vh, 76px); line-height: 1; }
+    .answer-btn .answer-label { font-size: clamp(29px, 4.1vw, 52px); line-height: 1; font-weight: 950; letter-spacing: .04em; }
+    .answer-btn .tap-label { margin-top: 4px; font-size: clamp(12px, 1.25vw, 15px); opacity: .82; font-weight: 750; }
+    .true-btn { background: linear-gradient(145deg, #137d4c, #23be73); }
+    .false-btn { background: linear-gradient(145deg, #be3e47, #f35d5d); }
+    .tap-answer {
+      grid-column: 1 / -1;
+      align-self: end;
+      text-align: center;
+      color: var(--muted);
+      font-size: clamp(12px, 1.25vw, 15px);
+      font-weight: 800;
+      letter-spacing: .09em;
+    }
+
+    /* 7, 8 & 9 — correct/incorrect feedback and score tracking */
+    #feedbackScreen {
+      grid-template-rows: auto 1fr auto;
+      gap: clamp(12px, 2vh, 22px);
+    }
+    .feedback-wrap {
+      min-height: 0;
+      display: grid;
+      place-items: center;
+      text-align: center;
+    }
+    .feedback-card {
+      width: min(880px, 100%);
+      max-height: 100%;
+      display: grid;
+      justify-items: center;
+      align-content: center;
+      gap: clamp(8px, 1.55vh, 15px);
+      padding: clamp(20px, 3.5vw, 42px);
+      border-radius: var(--radius);
+    }
+    .feedback-icon { font-size: clamp(58px, 9vh, 96px); line-height: 1; animation: pop .42s ease-out both; }
+    .feedback-title { margin: 0; font-size: clamp(34px, 5vw, 62px); line-height: 1; letter-spacing: -.035em; }
+    .plus-one { display: none; color: var(--gold); font-size: clamp(20px, 2.8vw, 32px); font-weight: 950; }
+    .correct-answer-line { display: none; color: #d9e7f5; font-size: clamp(17px, 2.1vw, 25px); font-weight: 800; }
+    .correct-answer-line strong { color: #fff; }
+    .learning-label { color: var(--muted); font-size: clamp(11px, 1.15vw, 14px); letter-spacing: .12em; font-weight: 900; }
+    .learning-point {
+      max-width: 760px;
+      margin: 0;
+      padding: clamp(12px, 2vh, 19px) clamp(18px, 2.5vw, 28px);
+      border: 1px solid var(--line);
+      border-radius: 19px;
+      background: rgba(255,255,255,.055);
+      font-size: clamp(18px, 2.25vw, 28px);
+      line-height: 1.25;
+      font-weight: 720;
+      text-wrap: balance;
+    }
+    .score-line { color: #eef7ff; font-size: clamp(16px, 2vw, 23px); font-weight: 900; letter-spacing: .03em; }
+    .stars-filled { color: var(--gold); letter-spacing: .08em; text-shadow: 0 0 16px rgba(255,200,61,.34); }
+    .stars-empty { color: rgba(255,255,255,.18); letter-spacing: .08em; }
+    .next-btn, .next-player-btn {
+      justify-self: center;
+      min-height: clamp(72px, 9.4vh, 92px);
+      animation: none;
+      font-size: clamp(21px, 2.6vw, 31px);
+    }
+
+    /* 10, 11 & 12 — final result, learning reminder, next player and auto-reset */
+    #resultScreen {
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: clamp(10px, 1.5vh, 16px);
+      text-align: center;
+    }
+    .result-body {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: .92fr 1.18fr;
+      gap: clamp(14px, 2vw, 24px);
+    }
+    .result-card, .reminder-panel {
+      min-height: 0;
+      border-radius: var(--radius);
+      padding: clamp(16px, 2.5vw, 30px);
+    }
+    .result-card { display: grid; align-content: center; justify-items: center; gap: clamp(7px, 1.2vh, 12px); }
+    .trophy { font-size: clamp(50px, 7.4vh, 82px); line-height: 1; animation: pop .5s ease-out both; }
+    .result-heading { margin: 0; color: #fff; font-size: clamp(30px, 4.5vw, 54px); line-height: 1; letter-spacing: -.04em; }
+    .result-stars { color: var(--gold); font-size: clamp(24px, 3.7vw, 44px); line-height: 1; letter-spacing: .02em; }
+    .result-score { font-size: clamp(24px, 3.2vw, 39px); font-weight: 950; }
+    .result-rank { color: #beddff; font-size: clamp(18px, 2.15vw, 26px); font-weight: 950; letter-spacing: .04em; }
+    .result-copy { margin: 0; max-width: 420px; color: #d6e6f5; font-size: clamp(15px, 1.65vw, 20px); line-height: 1.25; font-weight: 650; }
+    .reminder-panel { display: grid; align-content: center; gap: clamp(10px, 1.4vh, 15px); }
+    .reminder-title { margin: 0; font-size: clamp(18px, 2.1vw, 26px); line-height: 1.15; }
+    .reminder-grid { display: grid; gap: clamp(8px, 1.2vh, 12px); }
+    .reminder-item {
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      align-items: center;
+      gap: 13px;
+      padding: clamp(10px, 1.5vh, 15px) clamp(12px, 1.6vw, 18px);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,.052);
+      text-align: left;
+    }
+    .reminder-emoji { font-size: clamp(27px, 3vw, 36px); text-align: center; }
+    .reminder-item strong { display: block; font-size: clamp(14px, 1.6vw, 19px); letter-spacing: .04em; }
+    .reminder-item span { display: block; margin-top: 2px; color: var(--muted); font-size: clamp(13px, 1.4vw, 17px); }
+    .result-actions { display: grid; justify-items: center; gap: 5px; }
+    .next-player-btn { min-height: clamp(68px, 8.8vh, 88px); }
+    .auto-reset { color: var(--muted); font-size: clamp(11px, 1.2vw, 14px); font-weight: 700; }
+
+    .confetti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 20; }
+    .confetti-piece {
+      position: absolute;
+      top: -30px;
+      width: 12px;
+      height: 22px;
+      border-radius: 4px;
+      opacity: 0;
+      animation: confettiFall var(--d) linear var(--delay) forwards;
+    }
+
+    .sr-only {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    @media (max-width: 760px), (max-height: 610px) {
+      .app { padding: 14px; }
+      .brand-icon { width: 40px; height: 40px; border-radius: 12px; font-size: 22px; }
+      .hero h1 { font-size: clamp(34px, 8.2vw, 58px); }
+      .robot-mark { display: none; }
+      .topic-chip { min-width: 0; }
+      #questionScreen { grid-template-rows: auto auto minmax(0, 1fr) minmax(165px, 42%); gap: 9px; }
+      .question-card { padding: 14px; border-radius: 22px; }
+      .question-text { font-size: clamp(21px, 4.8vw, 32px); }
+      .answer-zone { gap: 10px; }
+      .answer-btn { border-radius: 22px; }
+      .answer-btn .answer-icon { font-size: 44px; }
+      .result-body { gap: 10px; }
+      .result-card, .reminder-panel { padding: 13px; border-radius: 21px; }
+      .reminder-item { grid-template-columns: 42px 1fr; padding: 8px 10px; }
+    }
+
+    @media (max-width: 620px) {
+      .event-kicker { letter-spacing: .07em; }
+      .quick-pill:nth-child(2) { display: none; }
+      .answer-btn .tap-label { display: none; }
+      .result-body { grid-template-columns: 1fr; grid-template-rows: .88fr 1.12fr; }
+      .trophy { display: none; }
+      .reminder-grid { grid-template-columns: repeat(3, 1fr); }
+      .reminder-item { grid-template-columns: 1fr; gap: 2px; text-align: center; }
+      .reminder-item span { font-size: 11px; }
+    }
+
+    @media (orientation: portrait) and (max-width: 760px) {
+      .answer-zone { grid-template-columns: 1fr 1fr; }
+      .hero { gap: 12px; }
+      .topics { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; }
+      .topic-chip { padding: 10px 5px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app" id="app" aria-live="polite">
+    <div class="orb one" aria-hidden="true"></div>
+    <div class="orb two" aria-hidden="true"></div>
+
+    <!-- Screen 1: ATTRACT / START -->
+    <section class="screen active" id="attractScreen" aria-labelledby="mainTitle">
+      <div class="attract-top"><div class="event-kicker">✦ CSCM AI ENGAGEMENT EVENT</div></div>
+      <div class="hero">
+        <div class="robot-mark" aria-hidden="true">🤖</div>
+        <h1 id="mainTitle"><span class="gradient">COPILOT AGENT</span><br />CHALLENGE</h1>
+        <p class="hero-subtitle">Think you know how to build an AI Agent?</p>
+        <div class="quick-rules" aria-label="Game rules">
+          <div class="quick-pill">🎯 5 QUESTIONS</div>
+          <div class="quick-pill">✅ TRUE or ❌ FALSE</div>
+          <div class="quick-pill">🏆 CAN YOU GET 5/5?</div>
+        </div>
+        <div class="topics" aria-label="Game topics">
+          <div class="topic-chip topic-purpose">🎯 PURPOSE</div>
+          <div class="topic-chip topic-instructions">💬 INSTRUCTIONS</div>
+          <div class="topic-chip topic-knowledge">📚 KNOWLEDGE</div>
+        </div>
+      </div>
+      <div class="start-zone">
+        <button class="start-btn" id="startBtn" type="button">👆 TAP TO START</button>
+        <div class="start-hint">Read each question and tap TRUE or FALSE · About 1–2 minutes</div>
+      </div>
+    </section>
+
+    <!-- Screen 2: QUESTION -->
+    <section class="screen" id="questionScreen" aria-labelledby="questionText">
+      <div class="topbar">
+        <div class="brand"><span class="brand-icon">🤖</span><span>AGENT CHALLENGE</span></div>
+        <div class="question-counter" id="questionCounter">QUESTION 1 / 5</div>
+      </div>
+      <div class="progress-row" id="progressRow" aria-label="Question progress"></div>
+      <div class="question-card glass" id="questionCard">
+        <div class="challenge-badge">👾 CHALLENGE QUESTION</div>
+        <div class="category-badge" id="categoryBadge">💬 INSTRUCTIONS</div>
+        <h2 class="question-text" id="questionText"></h2>
+      </div>
+      <div class="answer-zone">
+        <button class="answer-btn true-btn" id="trueBtn" type="button" aria-label="Answer True">
+          <span class="answer-icon">✅</span><span class="answer-label">TRUE</span><span class="tap-label">TAP YOUR ANSWER</span>
+        </button>
+        <button class="answer-btn false-btn" id="falseBtn" type="button" aria-label="Answer False">
+          <span class="answer-icon">❌</span><span class="answer-label">FALSE</span><span class="tap-label">TAP YOUR ANSWER</span>
+        </button>
+        <div class="tap-answer">👆 TAP YOUR ANSWER</div>
+      </div>
+    </section>
+
+    <!-- Screen 3A / 3B: ANSWER FEEDBACK -->
+    <section class="screen" id="feedbackScreen" aria-labelledby="feedbackTitle">
+      <div class="topbar">
+        <div class="brand"><span class="brand-icon">🤖</span><span>AGENT CHALLENGE</span></div>
+        <div class="question-counter" id="feedbackCounter">QUESTION 1 / 5</div>
+      </div>
+      <div class="feedback-wrap">
+        <div class="feedback-card glass" id="feedbackCard">
+          <div class="feedback-icon" id="feedbackIcon">✅</div>
+          <h2 class="feedback-title" id="feedbackTitle">🎉 CORRECT!</h2>
+          <div class="plus-one" id="plusOne">+1 ⭐</div>
+          <div class="correct-answer-line" id="correctAnswerLine">CORRECT ANSWER: <strong>✅ TRUE</strong></div>
+          <div class="learning-label">💡 LEARNING POINT</div>
+          <p class="learning-point" id="learningPoint"></p>
+          <div class="score-line" id="scoreLine">SCORE: <span class="stars-filled"></span><span class="stars-empty"></span></div>
+        </div>
+      </div>
+      <button class="next-btn" id="nextBtn" type="button">NEXT QUESTION →</button>
+    </section>
+
+    <!-- Screen 4: FINAL RESULT -->
+    <section class="screen" id="resultScreen" aria-labelledby="resultHeading">
+      <div class="topbar">
+        <div class="brand"><span class="brand-icon">🤖</span><span>AGENT CHALLENGE</span></div>
+        <div class="event-kicker">CSCM AI ENGAGEMENT EVENT</div>
+      </div>
+      <div class="result-body">
+        <div class="result-card glass">
+          <div class="trophy" id="trophy">🏆</div>
+          <h2 class="result-heading" id="resultHeading">AMAZING!</h2>
+          <div class="result-stars" id="resultStars">★★★★★</div>
+          <div class="result-score" id="resultScore">5 / 5</div>
+          <div class="result-rank" id="resultRank">🤖 AGENT PRO</div>
+          <p class="result-copy" id="resultCopy">Perfect score! You know the Agent building basics.</p>
+        </div>
+        <div class="reminder-panel glass">
+          <h3 class="reminder-title">Remember the 3 Agent building blocks</h3>
+          <div class="reminder-grid">
+            <div class="reminder-item topic-purpose"><div class="reminder-emoji">🎯</div><div><strong>PURPOSE</strong><span>What should it do?</span></div></div>
+            <div class="reminder-item topic-instructions"><div class="reminder-emoji">💬</div><div><strong>INSTRUCTIONS</strong><span>How should it respond?</span></div></div>
+            <div class="reminder-item topic-knowledge"><div class="reminder-emoji">📚</div><div><strong>KNOWLEDGE</strong><span>What information should it use?</span></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="result-actions">
+        <button class="next-player-btn" id="nextPlayerBtn" type="button">🔄 NEXT PLAYER</button>
+        <div class="auto-reset" id="autoResetText">Attract screen returns in 12 seconds</div>
+      </div>
+    </section>
+
+    <div class="confetti" id="confetti" aria-hidden="true"></div>
+    <div class="sr-only" id="liveRegion" aria-live="assertive"></div>
+  </main>
+
+  <script>
+    "use strict";
+
+    // Section 3 — Complete master question bank (15 supplied questions and learning points).
+    const QUESTION_BANK = Object.freeze([
+      { id: "P1", category: "Purpose", icon: "🎯", question: 'The "Purpose" tells users what the Agent is designed to help with.', answer: true, learning: "A clear Purpose defines the Agent's main job.", challenge: false },
+      { id: "P2", category: "Purpose", icon: "🎯", question: 'A good Agent should have as many "Purposes" as possible so it can help with everything.', answer: false, learning: "A focused Purpose makes the Agent's role clearer.", challenge: false },
+      { id: "P3", category: "Purpose", icon: "🎯", question: '"Help colleagues understand the Supplier Onboarding process" is an example of a clear Agent "Purpose".', answer: true, learning: "It clearly describes what the Agent should help users achieve.", challenge: false },
+      { id: "P4", category: "Purpose", icon: "🎯", question: '"Be a helpful AI" is enough to clearly define the "Purpose" of a procurement Agent.', answer: false, learning: '"Helpful AI" is too broad. A stronger Purpose defines a specific job.', challenge: false },
+      { id: "P5", category: "Purpose", icon: "🎯", question: "Purpose and Knowledge mean the same thing when setting up an Agent.", answer: false, learning: "Purpose = what the Agent should do. Knowledge = information the Agent can use.", challenge: true },
+
+      { id: "I1", category: "Instructions", icon: "💬", question: '"Instructions" can tell an Agent how you want it to respond to users.', answer: true, learning: "Instructions help shape the Agent's behaviour and responses.", challenge: false },
+      { id: "I2", category: "Instructions", icon: "💬", question: '"Instructions" can ask an Agent to explain a process step-by-step.', answer: true, learning: "Instructions can define how information should be presented.", challenge: false },
+      { id: "I3", category: "Instructions", icon: "💬", question: '"Give useful answers" is more specific than "Use simple language and provide numbered steps."', answer: false, learning: "Specific Instructions give the Agent clearer guidance.", challenge: false },
+      { id: "I4", category: "Instructions", icon: "💬", question: '"Instructions" can tell the Agent what to do when it cannot find the requested information.', answer: true, learning: "Instructions can define how the Agent handles unavailable information.", challenge: false },
+      { id: "I5", category: "Instructions", icon: "💬", question: "Once an Agent has good Knowledge, clear Instructions are no longer important.", answer: false, learning: "Knowledge provides information. Instructions guide how the Agent should respond.", challenge: true },
+
+      { id: "K1", category: "Knowledge", icon: "📚", question: '"Knowledge" gives the Agent information it can use when answering questions.', answer: true, learning: "Knowledge provides relevant information the Agent can use.", challenge: false },
+      { id: "K2", category: "Knowledge", icon: "📚", question: 'A Supplier Onboarding Guide could be useful "Knowledge" for a Supplier Onboarding Agent.', answer: true, learning: "Knowledge should be relevant to the Agent's Purpose.", challenge: false },
+      { id: "K3", category: "Knowledge", icon: "📚", question: 'Adding more "Knowledge" is always better, even when the information is unrelated to the Agent\'s Purpose.', answer: false, learning: "Relevant Knowledge is more valuable than simply adding more information.", challenge: false },
+      { id: "K4", category: "Knowledge", icon: "📚", question: 'An Agent\'s Purpose and Instructions can completely replace the need for relevant "Knowledge".', answer: false, learning: "Purpose, Instructions and Knowledge each play a different role.", challenge: false },
+      { id: "K5", category: "Knowledge", icon: "📚", question: 'If the Agent\'s "Knowledge" doesn\'t contain the answer, Instructions can tell the Agent not to guess.', answer: true, learning: "Instructions can define how the Agent should handle missing information.", challenge: true }
+    ]);
+
+    const CATEGORY_META = Object.freeze({
+      Purpose: { label: "🎯 PURPOSE", css: "category-purpose" },
+      Instructions: { label: "💬 INSTRUCTIONS", css: "category-instructions" },
+      Knowledge: { label: "📚 KNOWLEDGE", css: "category-knowledge" }
+    });
+
+    const RESULT_META = Object.freeze({
+      5: { trophy: "🏆", heading: "AMAZING!", rank: "🤖 AGENT PRO", copy: "Perfect score! You know the Agent building basics." },
+      4: { trophy: "🌟", heading: "GREAT JOB!", rank: "🤖 AGENT BUILDER", copy: "Great job! You know your Agent building blocks." },
+      3: { trophy: "🧩", heading: "NICE WORK!", rank: "🧩 AGENT EXPLORER", copy: "You've got the basics!" },
+      2: { trophy: "💡", heading: "KEEP EXPLORING", rank: "", copy: "Nice try! Remember the three Agent building blocks." },
+      1: { trophy: "💡", heading: "KEEP EXPLORING", rank: "", copy: "Nice try! Remember the three Agent building blocks." },
+      0: { trophy: "💡", heading: "KEEP EXPLORING", rank: "", copy: "Nice try! Remember the three Agent building blocks." }
+    });
+
+    const state = {
+      questions: [],
+      currentIndex: 0,
+      score: 0,
+      answerLocked: false,
+      prepared: false,
+      resetTimer: null,
+      countdownTimer: null,
+      resetSeconds: 12
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const screens = ["attractScreen", "questionScreen", "feedbackScreen", "resultScreen"];
+
+    function randomItem(items) {
+      return items[Math.floor(Math.random() * items.length)];
+    }
+
+    function shuffle(items) {
+      const copy = [...items];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    // Section 2 — Select exactly 1 per category + 2 unique extras, then enforce a 2/3 or 3/2 T/F split and shuffle.
+    function generateQuestionSet() {
+      const categories = ["Purpose", "Instructions", "Knowledge"];
+      const selected = categories.map(category => randomItem(QUESTION_BANK.filter(q => q.category === category)));
+      const selectedIds = new Set(selected.map(q => q.id));
+      const remaining = QUESTION_BANK.filter(q => !selectedIds.has(q.id));
+      const baseTrue = selected.filter(q => q.answer).length;
+
+      const allPairs = [];
+      for (let i = 0; i < remaining.length - 1; i++) {
+        for (let j = i + 1; j < remaining.length; j++) {
+          const pair = [remaining[i], remaining[j]];
+          const finalTrue = baseTrue + pair.filter(q => q.answer).length;
+          if (finalTrue === 2 || finalTrue === 3) allPairs.push(pair);
+        }
+      }
+
+      if (!allPairs.length) throw new Error("Unable to generate a balanced question set.");
+      const targetTrue = randomItem([2, 3]);
+      const targetPairs = allPairs.filter(pair => baseTrue + pair.filter(q => q.answer).length === targetTrue);
+      const extras = randomItem(targetPairs.length ? targetPairs : allPairs);
+      return shuffle([...selected, ...extras]);
+    }
+
+    function prepareSession() {
+      clearResultTimers();
+      state.questions = generateQuestionSet();
+      state.currentIndex = 0;
+      state.score = 0;
+      state.answerLocked = false;
+      state.prepared = true;
+    }
+
+    function showScreen(id) {
+      screens.forEach(screenId => $(screenId).classList.toggle("active", screenId === id));
+      window.scrollTo(0, 0);
+      $("liveRegion").textContent = id === "questionScreen" ? `Question ${state.currentIndex + 1} of 5` : "";
+    }
+
+    function tryFullscreen() {
+      const root = document.documentElement;
+      if (!document.fullscreenElement && root.requestFullscreen) root.requestFullscreen().catch(() => {});
+    }
+
+    function startGame() {
+      tryFullscreen();
+      if (!state.prepared) prepareSession();
+      state.prepared = false;
+      renderQuestion();
+      showScreen("questionScreen");
+    }
+
+    function renderProgress() {
+      const row = $("progressRow");
+      row.replaceChildren();
+      for (let i = 0; i < 5; i++) {
+        const dot = document.createElement("span");
+        dot.className = `progress-dot ${i < state.currentIndex ? "done" : i === state.currentIndex ? "current" : ""}`;
+        dot.setAttribute("aria-hidden", "true");
+        row.appendChild(dot);
+      }
+      row.setAttribute("aria-label", `Question ${state.currentIndex + 1} of 5`);
+    }
+
+    function renderQuestion() {
+      const q = state.questions[state.currentIndex];
+      state.answerLocked = false;
+      $("trueBtn").disabled = false;
+      $("falseBtn").disabled = false;
+      $("questionCounter").textContent = `QUESTION ${state.currentIndex + 1} / 5`;
+      renderProgress();
+      const card = $("questionCard");
+      card.classList.toggle("is-challenge", q.challenge);
+      const badge = $("categoryBadge");
+      badge.className = `category-badge ${CATEGORY_META[q.category].css}`;
+      badge.textContent = CATEGORY_META[q.category].label;
+      $("questionText").textContent = `“${q.question}”`;
+    }
+
+    function answerQuestion(answer) {
+      if (state.answerLocked) return;
+      state.answerLocked = true;
+      $("trueBtn").disabled = true;
+      $("falseBtn").disabled = true;
+      const q = state.questions[state.currentIndex];
+      const correct = answer === q.answer;
+      if (correct) state.score += 1;
+      renderFeedback(correct, q);
+      showScreen("feedbackScreen");
+      if (correct) burstConfetti(14);
+    }
+
+    function scoreStars() {
+      return {
+        filled: "★".repeat(state.score),
+        empty: "★".repeat(5 - state.score)
+      };
+    }
+
+    function renderFeedback(correct, q) {
+      $("feedbackCounter").textContent = `QUESTION ${state.currentIndex + 1} / 5`;
+      $("feedbackIcon").textContent = correct ? "✅" : "💡";
+      $("feedbackTitle").textContent = correct ? "🎉 CORRECT!" : "NOT QUITE!";
+      $("plusOne").style.display = correct ? "block" : "none";
+      $("correctAnswerLine").style.display = correct ? "none" : "block";
+      $("correctAnswerLine").innerHTML = `CORRECT ANSWER: <strong>${q.answer ? "✅ TRUE" : "❌ FALSE"}</strong>`;
+      $("learningPoint").textContent = q.learning;
+      const stars = scoreStars();
+      $("scoreLine").innerHTML = `SCORE: <span class="stars-filled">${stars.filled}</span><span class="stars-empty">${stars.empty}</span>`;
+      $("nextBtn").textContent = state.currentIndex === 4 ? "SEE MY RESULT →" : "NEXT QUESTION →";
+    }
+
+    function nextQuestion() {
+      if (state.currentIndex >= 4) {
+        renderResult();
+        showScreen("resultScreen");
+        startResultTimers();
+        burstConfetti(state.score >= 4 ? 34 : 20);
+        return;
+      }
+      state.currentIndex += 1;
+      renderQuestion();
+      showScreen("questionScreen");
+    }
+
+    function renderResult() {
+      const result = RESULT_META[state.score];
+      $("trophy").textContent = result.trophy;
+      $("resultHeading").textContent = result.heading;
+      $("resultStars").textContent = state.score ? "★".repeat(state.score) : "☆";
+      $("resultScore").textContent = `${state.score} / 5`;
+      $("resultRank").textContent = result.rank;
+      $("resultRank").style.display = result.rank ? "block" : "none";
+      $("resultCopy").textContent = result.copy;
+    }
+
+    function resetToAttract(preGenerate = false) {
+      clearResultTimers();
+      state.questions = [];
+      state.currentIndex = 0;
+      state.score = 0;
+      state.answerLocked = false;
+      state.prepared = false;
+      if (preGenerate) prepareSession();
+      $("confetti").replaceChildren();
+      showScreen("attractScreen");
+    }
+
+    function nextPlayer() {
+      // Section 12 — Clear all prior state, generate a brand-new balanced set, and return to the start screen.
+      resetToAttract(true);
+    }
+
+    function startResultTimers() {
+      clearResultTimers();
+      state.resetSeconds = 12;
+      updateResetText();
+      state.countdownTimer = window.setInterval(() => {
+        state.resetSeconds -= 1;
+        updateResetText();
+      }, 1000);
+      state.resetTimer = window.setTimeout(() => resetToAttract(false), 12000);
+    }
+
+    function updateResetText() {
+      $("autoResetText").textContent = `Attract screen returns in ${Math.max(0, state.resetSeconds)} second${state.resetSeconds === 1 ? "" : "s"}`;
+    }
+
+    function clearResultTimers() {
+      if (state.resetTimer) window.clearTimeout(state.resetTimer);
+      if (state.countdownTimer) window.clearInterval(state.countdownTimer);
+      state.resetTimer = null;
+      state.countdownTimer = null;
+    }
+
+    function keepResultAwake() {
+      if ($("resultScreen").classList.contains("active")) startResultTimers();
+    }
+
+    function burstConfetti(count) {
+      const layer = $("confetti");
+      layer.replaceChildren();
+      const colors = ["#2f7cff", "#9b6cff", "#ff9b45", "#29c879", "#ff625f", "#ffc83d"];
+      for (let i = 0; i < count; i++) {
+        const piece = document.createElement("span");
+        piece.className = "confetti-piece";
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.background = randomItem(colors);
+        piece.style.setProperty("--x", `${-70 + Math.random() * 140}px`);
+        piece.style.setProperty("--d", `${1.7 + Math.random() * 1.5}s`);
+        piece.style.setProperty("--delay", `${Math.random() * .45}s`);
+        layer.appendChild(piece);
+      }
+      window.setTimeout(() => layer.replaceChildren(), 3800);
+    }
+
+    $("startBtn").addEventListener("click", startGame);
+    $("trueBtn").addEventListener("click", () => answerQuestion(true));
+    $("falseBtn").addEventListener("click", () => answerQuestion(false));
+    $("nextBtn").addEventListener("click", nextQuestion);
+    $("nextPlayerBtn").addEventListener("click", nextPlayer);
+    $("resultScreen").addEventListener("pointerdown", keepResultAwake, { passive: true });
+
+    // Section 16 — Complete single-tap journey is wired above. Expose read-only test hooks for booth QA.
+    window.__COPILOT_AGENT_CHALLENGE__ = Object.freeze({
+      questionBank: QUESTION_BANK,
+      generateQuestionSet,
+      getState: () => ({
+        questionIds: state.questions.map(q => q.id),
+        categories: state.questions.map(q => q.category),
+        answers: state.questions.map(q => q.answer),
+        currentIndex: state.currentIndex,
+        score: state.score,
+        prepared: state.prepared,
+        activeScreen: screens.find(id => $(id).classList.contains("active"))
+      })
+    });
+  </script>
+</body>
+</html>
